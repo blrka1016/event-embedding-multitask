@@ -78,7 +78,7 @@ def process_row(predict_role, input_roles, predicate_lemma, nsubj, dobj, iobj, n
         "V" : "V",
         "nsubj" : "A0",
         "nsubjpass" : "A0",
-        "obj" : "A1",
+        "dobj" : "A1",
         "iobj" : "A2"
     }
 
