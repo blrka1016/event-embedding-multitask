@@ -100,7 +100,7 @@ def process_row(predict_role, input_roles, predicate_lemma, nsubj, dobj, iobj, n
     for r in input_roles:
         role = ud_map[r]
         filler = role_map[r]
-        if filler is not None:
+        if not pd.isnull(filler):
             inputs[role] = filler
 
     return get_filler_prob(inputs, target, model, raw_word_list)
