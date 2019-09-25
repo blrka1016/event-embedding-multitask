@@ -27,9 +27,8 @@ MODEL_PATH = config.MODEL_VERSION
 
 
 def query(model_name, experiment_name, inputs, target):
-    full_name = model_name + '_' + experiment_name
-    print(full_name)
-    description = model_builder.load_description(MODEL_PATH, full_name)
+    MODEL_NAME = experiment_name
+    description = model_builder.load_description(MODEL_PATH, MODEL_NAME)
 
     net = model_builder.build_model(model_name, description)
     net.load(MODEL_PATH, MODEL_NAME, description)
