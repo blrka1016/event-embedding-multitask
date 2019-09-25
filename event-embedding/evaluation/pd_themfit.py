@@ -71,7 +71,7 @@ def process_row(predict_role, input_roles, predicate_lemma, nsubj, dobj, iobj, n
     raw_words -- A dictionary of vocabulary
     """
     ud_map = {
-        "V" : "V"
+        "V" : "V",
         "nsubj" : "A0",
         "nsubjpass" : "A0",
         "obj" : "A1",
