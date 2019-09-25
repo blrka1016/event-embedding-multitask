@@ -34,23 +34,23 @@ def get_filler_prob(inputs, target, model, raw_words):
     raw_words -- A dictionary of vocabulary
     """
     raw_words.update(inputs)
-    print(raw_words)
+    #print(raw_words)
         
     assert len(raw_words) == len(model.role_vocabulary)
         
     t_r = [model.role_vocabulary.get(r, model.unk_role_id) for r in target.keys()]
     t_w = [model.word_vocabulary.get(w, model.unk_word_id) for w in target.values()]
-    print("Target role", t_r)
-    print("Target word", t_w)
+    #print("Target role", t_r)
+    #print("Target word", t_w)
 
     if t_w[0] == model.unk_word_id:
         return None
 
     input_roles_words = {}
     for r, w in raw_words.items():
-        input_roles_words[model.role_vocabulary[r]] = utils.input_word_index(model.word_vocabulary, w, model.unk_word_id, warn_unk=True)
+        input_roles_words[model.role_vocabulary[r]] = utils.input_word_index(model.word_vocabulary, w, model.unk_word_id, warn_unk=False)
 
-    print input_roles_words, t_r[0]
+    #print input_roles_words, t_r[0]
     input_roles_words.pop(t_r[0])
 
     x_w_i = numpy.asarray([input_roles_words.values()], dtype=numpy.int64)
@@ -134,14 +134,14 @@ def pd_themfit(model_name, experiment_name, df, predict_role='V', input_roles="a
     if net.role_vocabulary.get("<UNKNOWN>", -1) == -1:
         net.role_vocabulary["<UNKNOWN>"] = len(net.role_vocabulary) - 1
 
-    print net.role_vocabulary
+    print("Role vocabulary", net.role_vocabulary)
     print("unk_word_id", net.unk_word_id)
     print("missing_word_id", net.missing_word_id)
 
     reverse_vocabulary = utils.get_reverse_map(net.word_vocabulary)
     reverse_role_vocabulary = utils.get_reverse_map(net.role_vocabulary)    
 
-    print reverse_role_vocabulary
+    print("Reverse role vocabulary", reverse_role_vocabulary)
 
     raw_words = dict((reverse_role_vocabulary[r], reverse_vocabulary[net.missing_word_id]) for r in net.role_vocabulary.values())
 
