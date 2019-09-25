@@ -34,9 +34,9 @@ def get_filler_prob(inputs, target, model, raw_word_list):
     model -- The loaded model with which to make predictions
     raw_word_list -- A dictionary of vocabulary
     """
-    print(inputs)
+    #print(inputs)
     raw_word_list.update(inputs)
-    print(raw_word_list)
+    #print(raw_word_list)
         
     assert len(raw_word_list) == len(model.role_vocabulary)
         
