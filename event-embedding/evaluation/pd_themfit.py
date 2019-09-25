@@ -31,10 +31,11 @@ def get_filler_prob(inputs, target, model, raw_word_list):
     inputs -- A dictionary of inputs with the role as the key and the filler as the value.
     target -- A singleton dictionary containing the target role as the key and target filler as the value.
     model -- The loaded model with which to make predictions
-    raw_words -- A dictionary of vocabulary
+    raw_word_list -- A dictionary of vocabulary
     """
+    print(inputs)
     raw_word_list.update(inputs)
-    #print(raw_words)
+    print(raw_word_list)
         
     assert len(raw_word_list) == len(model.role_vocabulary)
         
