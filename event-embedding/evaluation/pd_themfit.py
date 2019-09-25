@@ -62,8 +62,56 @@ def get_filler_prob(inputs, target, model, raw_word_list):
 
     return model.p_words(x_w_i, x_r_i, y_w_i, y_r_i)[0]
 
-def process_row(predict_role, input_roles, predicate_lemma, nsubj, dobj, iobj, nsubjpass, model, raw_word_list):
-    """ Apply get_filler_prob to a row in a pandas DF.
+def get_top_predictions(inputs, target, model, raw_word_list, n=5):
+    """ Returns the top predicted filler for a target role, given a set of input roles + fillers
+        
+    Keyword arguments:
+    inputs -- A dictionary of inputs with the role as the key and the filler as the value.
+    target -- A singleton dictionary containing the target role as the key and target filler as the value.
+    model -- The loaded model with which to make predictions
+    raw_word_list -- A dictionary of vocabulary
+    n -- The number of top predictions that should be retrieved
+    """
+    #print(inputs)
+    raw_word_list.update(inputs)
+    #print(raw_word_list)
+        
+    assert len(raw_word_list) == len(model.role_vocabulary)
+        
+    t_r = [model.role_vocabulary.get(r, model.unk_role_id) for r in target.keys()]
+    t_w = [model.unk_word_id]
+
+    input_roles_words = {}
+    for r, w in raw_word_list.items():
+        input_roles_words[model.role_vocabulary[r]] = utils.input_word_index(model.word_vocabulary, w, model.unk_word_id, warn_unk=False)
+
+    #print input_roles_words, t_r[0]
+    input_roles_words.pop(t_r[0])
+
+    x_w_i = numpy.asarray([input_roles_words.values()], dtype=numpy.int64)
+    x_r_i = numpy.asarray([input_roles_words.keys()], dtype=numpy.int64)
+    y_w_i = numpy.asarray(t_w, dtype=numpy.int64)
+    y_r_i = numpy.asarray(t_r, dtype=numpy.int64)
+
+    predicted_word_indices = net.top_words(x_w_i, x_r_i, y_w_i, y_r_i, n)
+    results = []
+
+    for t_w_i in predicted_word_indices:
+        t_w = net.word_vocabulary.get(t_w_i, net.unk_word_id)
+        y_w_i = numpy.asarray([t_w_i], dtype=numpy.int64)
+        p = net.p_words(x_w_i, x_r_i, y_w_i, y_r_i, batch_size=1, verbose=0)[0]
+        n = numpy.round(p / 0.005)
+        fb = numpy.floor(n)
+        hb = n % 2
+        lemma = reverse_vocabulary[int(t_w_i)]
+        print u"{:<5} {:7.6f} {:<20} ".format(i+1, float(p), lemma) + u"\u2588" * int(fb) + u"\u258C" * int(hb)
+        results.append((lemma, p))
+
+    return results
+
+    
+def process_row(predict_role, input_roles, predicate_lemma, nsubj, dobj, iobj, nsubjpass, model, raw_word_list, function="filler_prob", n=5):
+    """ Apply get_filler_prob or get_top_predictions to a row in a pandas DF.
         
     Keyword arguments:
     predict_role -- the target role for which the filler will be predicted (default: 'V')
@@ -75,6 +123,7 @@ def process_row(predict_role, input_roles, predicate_lemma, nsubj, dobj, iobj, n
     nsubjpass -- the passive subject
     model -- The loaded model with which to make predictions
     raw_words -- A dictionary of vocabulary
+    n -- The number of predictions for the "get top predictions" function
     """
     ud_map = {
         "V" : "V",
@@ -104,11 +153,13 @@ def process_row(predict_role, input_roles, predicate_lemma, nsubj, dobj, iobj, n
         if not pd.isnull(filler):
             inputs[role] = filler
 
-    return get_filler_prob(inputs, target, model, raw_word_list)
+    if function == 'filler_prob':
+        return get_filler_prob(inputs, target, model, raw_word_list)
+    else:
+        return get_top_predictions(inputs, target, model, raw_word_list, n)
 
-    
 
-def pd_themfit(model_name, experiment_name, df, predict_role='V', input_roles="all_args"):    
+def pd_themfit(model_name, experiment_name, df, predict_role='V', input_roles="all_args", function="filler_prob", n=5):    
     """ Adds a column to a pandas df with a role filler probability.
 
     For each row in the pandas df, calculates the probability that a particular role filler will fill a
@@ -158,7 +209,9 @@ def pd_themfit(model_name, experiment_name, df, predict_role='V', input_roles="a
                                         x['iobj'],
                                         x['nsubjpass'],
                                         net,
-                                        raw_words),
+                                        raw_words,
+                                        function,
+                                        n),
                 axis = 1)
 
     return df
