@@ -93,13 +93,13 @@ def get_top_predictions(inputs, target, model, raw_word_list, n=5):
     y_w_i = numpy.asarray(t_w, dtype=numpy.int64)
     y_r_i = numpy.asarray(t_r, dtype=numpy.int64)
 
-    predicted_word_indices = net.top_words(x_w_i, x_r_i, y_w_i, y_r_i, n)
+    predicted_word_indices = model.top_words(x_w_i, x_r_i, y_w_i, y_r_i, n)
     results = []
 
     for t_w_i in predicted_word_indices:
-        t_w = net.word_vocabulary.get(t_w_i, net.unk_word_id)
+        t_w = model.word_vocabulary.get(t_w_i, model.unk_word_id)
         y_w_i = numpy.asarray([t_w_i], dtype=numpy.int64)
-        p = net.p_words(x_w_i, x_r_i, y_w_i, y_r_i, batch_size=1, verbose=0)[0]
+        p = model.p_words(x_w_i, x_r_i, y_w_i, y_r_i, batch_size=1, verbose=0)[0]
         n = numpy.round(p / 0.005)
         fb = numpy.floor(n)
         hb = n % 2
