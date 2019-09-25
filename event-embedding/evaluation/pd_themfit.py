@@ -58,7 +58,7 @@ def get_filler_prob(inputs, target, model, raw_words):
     y_w_i = numpy.asarray(t_w, dtype=numpy.int64)
     y_r_i = numpy.asarray(t_r, dtype=numpy.int64)
 
-    return model.p_words(x_w_i, x_r_i, y_w_i, y_r_i)
+    return model.p_words(x_w_i, x_r_i, y_w_i, y_r_i)[0]
 
 def process_row(predict_role, input_roles, predicate_lemma, nsubj, dobj, iobj, nsubjpass, model, raw_words):
     """ Apply get_filler_prob to a row in a pandas DF.
