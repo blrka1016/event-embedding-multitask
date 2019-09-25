@@ -17,6 +17,7 @@ sys.path.append(SRC_DIR)
 
 import model_builder
 import config
+import utils
 
 MODEL_PATH = config.MODEL_VERSION
 
