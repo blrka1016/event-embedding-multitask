@@ -95,7 +95,7 @@ def get_top_predictions(inputs, target, model, raw_word_list, n=5):
 
     predicted_word_indices = model.top_words(x_w_i, x_r_i, y_w_i, y_r_i, n)
     results = []
-    reverse_vocabulary = utils.get_reverse_map(net.word_vocabulary)
+    reverse_vocabulary = utils.get_reverse_map(model.word_vocabulary)
 
     for t_w_i in predicted_word_indices:
         t_w = model.word_vocabulary.get(t_w_i, model.unk_word_id)
