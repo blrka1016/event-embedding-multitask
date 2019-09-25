@@ -145,6 +145,9 @@ def pd_themfit(model_name, experiment_name, df, predict_role='V', input_roles="a
 
     raw_words = dict((reverse_role_vocabulary[r], reverse_vocabulary[net.missing_word_id]) for r in net.role_vocabulary.values())
 
+    if input_roles == 'all_args':
+        input_roles = ['nsubj', 'dobj', 'iobj', 'nsubjpass']
+
     df = df.apply(lambda x: process_row(predict_role,
                                         input_roles,
                                         x['Pred.Lemma'],
