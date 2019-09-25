@@ -5,8 +5,8 @@ import time
 import cPickle
 import gzip
 import random
+import pandas as pd
 
-import numpy
 from scipy.stats import spearmanr
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import wordnet as wn
