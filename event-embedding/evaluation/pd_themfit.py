@@ -81,7 +81,7 @@ def process_row(predict_role, input_roles, predicate_lemma, nsubj, dobj, iobj, n
         "nsubj" : "A0",
         "nsubjpass" : "A0",
         "dobj" : "A1",
-        "iobj" : "A2"
+        "iobj" : "<UNKNOWN>"
     }
 
     role_map = {
