@@ -24,7 +24,7 @@ MODEL_PATH = config.MODEL_VERSION
 wnl = WordNetLemmatizer()
 
 
-def get_filler_prob(inputs, target, model, raw_words):
+def get_filler_prob(inputs, target, model, raw_word_list):
     """ Returns the probability of a target filler for a role, given a set of input roles + fillers
         
     Keyword arguments:
@@ -33,10 +33,10 @@ def get_filler_prob(inputs, target, model, raw_words):
     model -- The loaded model with which to make predictions
     raw_words -- A dictionary of vocabulary
     """
-    raw_words.update(inputs)
+    raw_word_list.update(inputs)
     #print(raw_words)
         
-    assert len(raw_words) == len(model.role_vocabulary)
+    assert len(raw_word_list) == len(model.role_vocabulary)
         
     t_r = [model.role_vocabulary.get(r, model.unk_role_id) for r in target.keys()]
     t_w = [model.word_vocabulary.get(w, model.unk_word_id) for w in target.values()]
@@ -47,7 +47,7 @@ def get_filler_prob(inputs, target, model, raw_words):
         return None
 
     input_roles_words = {}
-    for r, w in raw_words.items():
+    for r, w in raw_word_list.items():
         input_roles_words[model.role_vocabulary[r]] = utils.input_word_index(model.word_vocabulary, w, model.unk_word_id, warn_unk=False)
 
     #print input_roles_words, t_r[0]
@@ -60,7 +60,7 @@ def get_filler_prob(inputs, target, model, raw_words):
 
     return model.p_words(x_w_i, x_r_i, y_w_i, y_r_i)[0]
 
-def process_row(predict_role, input_roles, predicate_lemma, nsubj, dobj, iobj, nsubjpass, model, raw_words):
+def process_row(predict_role, input_roles, predicate_lemma, nsubj, dobj, iobj, nsubjpass, model, raw_word_list):
     """ Apply get_filler_prob to a row in a pandas DF.
         
     Keyword arguments:
@@ -102,7 +102,7 @@ def process_row(predict_role, input_roles, predicate_lemma, nsubj, dobj, iobj, n
         if filler is not None:
             inputs[role] = filler
 
-    return get_filler_prob(inputs, target, model, raw_words)
+    return get_filler_prob(inputs, target, model, raw_word_list)
 
     
 
