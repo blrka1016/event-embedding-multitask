@@ -48,7 +48,7 @@ def get_filler_prob(inputs, target, model, raw_words):
         input_roles_words[model.role_vocabulary[r]] = utils.input_word_index(model.word_vocabulary, w, model.unk_word_id, warn_unk=True)
 
         print input_roles_words, t_r
-        input_roles_words.pop(t_r[0])
+        input_roles_words.pop(t_r)
 
     x_w_i = numpy.asarray([input_roles_words.values()], dtype=numpy.int64)
     x_r_i = numpy.asarray([input_roles_words.keys()], dtype=numpy.int64)
