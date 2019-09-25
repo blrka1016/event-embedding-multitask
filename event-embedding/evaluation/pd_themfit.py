@@ -34,6 +34,7 @@ def get_filler_prob(inputs, target, model, raw_words):
     raw_words -- A dictionary of vocabulary
     """
     raw_words.update(inputs)
+    print(raw_words)
         
     assert len(raw_words) == len(model.role_vocabulary)
         
@@ -47,8 +48,8 @@ def get_filler_prob(inputs, target, model, raw_words):
     for r, w in raw_words.items():
         input_roles_words[model.role_vocabulary[r]] = utils.input_word_index(model.word_vocabulary, w, model.unk_word_id, warn_unk=True)
 
-        print input_roles_words, t_r
-        input_roles_words.pop(t_r)
+        print input_roles_words, t_r[0]
+        input_roles_words.pop(t_r[0])
 
     x_w_i = numpy.asarray([input_roles_words.values()], dtype=numpy.int64)
     x_r_i = numpy.asarray([input_roles_words.keys()], dtype=numpy.int64)
