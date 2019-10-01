@@ -212,7 +212,7 @@ def pd_themfit(model_name, experiment_name, df, predict_role='V', input_roles="a
                                          'nsubj' : x['nsubj'],
                                          'dobj' : x['dobj'],
                                          'iobj' : x['iobj'],
-                                         'nsubjpass' : x['nsubjpass']}
+                                         'nsubjpass' : x['nsubjpass']},
                                         net,
                                         raw_words,
                                         function,
