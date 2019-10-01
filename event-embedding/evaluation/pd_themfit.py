@@ -201,10 +201,10 @@ def pd_themfit(model_name, experiment_name, df, predict_role='V', input_roles="a
 
     df = df.apply(lambda x: process_row(predict_role = predict_role,
                                         role_fillers = { i : x[i] for i in all_roles},
-                                        net,
-                                        raw_words,
-                                        function,
-                                        n),
+                                        model = net,
+                                        raw_word_list = raw_words,
+                                        function = function,
+                                        n = n),
                 axis = 1)
 
     return df
