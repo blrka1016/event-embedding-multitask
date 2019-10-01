@@ -127,6 +127,7 @@ def process_row(predict_role, role_fillers, model, raw_word_list, function="fill
 
     target = {predict_role : role_fillers[predict_role]}
     role_fillers.pop(predict_role)
+    role_fillers = {key:val for key, val in role_fillers.items() if not (pd.isnull(val))}
     
     if function == 'filler_prob':
         return get_filler_prob(role_fillers, target, model, raw_word_list)
@@ -134,7 +135,7 @@ def process_row(predict_role, role_fillers, model, raw_word_list, function="fill
         return get_top_predictions(role_fillers, target, model, raw_word_list, n)
 
 
-def pd_themfit(model_name, experiment_name, df, predict_role='V', input_roles="all_args", function="filler_prob", n=5):    
+def pd_themfit(model_name, experiment_name, df, predict_role='V', input_roles="all_available_args", function="filler_prob", n=5, debug=False):    
     """ Adds a column to a pandas df with a role filler probability.
 
     For each row in the pandas df, calculates the probability that a particular role filler will fill a
@@ -143,10 +144,19 @@ def pd_themfit(model_name, experiment_name, df, predict_role='V', input_roles="a
     Keyword arguments:
     model_name -- The name of the model
     experiment_name -- The name of the model plus the name of the experiment, separated by '_'
-    df -- The pandas dataframe. Columns should use dependency labels (nsubj, iobj etc)
+    df -- The pandas dataframe. Must include columns for all propbank labels in predict_role and input_roles
     predict_role -- the target role (in propbank labels) for which the filler will be predicted (default: 'V')
     input_roles -- the set of roles (in propbank labels) that should be used as inputs (default: 'all_args')
     """
+    possible_roles = set(['A0', 'A1', 'AM-LOC', 'AM-TMP', 'AM-MNR', '<UNKNOWN>', 'V'])
+    try:
+        assert predict_role in df.columns
+        assert predict_role in possible_roles
+        for r in input_roles:
+            assert r in df.columns
+            assert r in possible_roles
+    except:
+        print("NOT ALL ROLES ARE AVAILABLE AS DF COLUMNS")
     
     MODEL_NAME = experiment_name
 
@@ -175,26 +185,8 @@ def pd_themfit(model_name, experiment_name, df, predict_role='V', input_roles="a
     raw_words = dict((reverse_role_vocabulary[r], reverse_vocabulary[net.missing_word_id]) for r in net.role_vocabulary.values())
 
     if input_roles == 'all_args':
-        input_roles = ['A0', 'A1', '<UNKNOWN>', 'V']
-        input_roles.remove(predict_role)
-  
-    def return_non_null_arg(dobj, nsubjpass):
-        if pd.isnull(dobj):
-            return nsubjpass
-        else:
-            return dobj
-
-    if ('A1' in input_roles or predict_role == 'A1'):
-        if 'nsubjpass' in df.columns:
-            df['A1'] = df.apply(lambda x: return_non_null_arg(x['dobj'], x['nsubjpass']),
-                          axis=1)
-        else:
-            df = df.rename(columns={'dobj':'A1'})
-
-    if ('A0' in input_roles) or (predict_role == 'A0'):
-        df = df.rename(columns={'nsubj':'A0'})
-    if ('<UNKNOWN>' in input_roles) or (predict_role == '<UNKNOWN>'):
-        df = df.rename(columns={'iobj':'<UNKNOWN>'})
+        possible_roles.remove(predict_role)
+        input_roles = possible_roles.intersection(set(df.columns))
 
     all_roles = input_roles
     all_roles.append(predict_role)
@@ -204,7 +196,8 @@ def pd_themfit(model_name, experiment_name, df, predict_role='V', input_roles="a
                                         model = net,
                                         raw_word_list = raw_words,
                                         function = function,
-                                        n = n),
+                                        n = n,
+                                        debug=debug),
                 axis = 1)
 
     return df
