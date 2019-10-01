@@ -111,17 +111,13 @@ def get_top_predictions(inputs, target, model, raw_word_list, n=5):
     return results
 
     
-def process_row(predict_role, input_roles, predicate_lemma, nsubj, dobj, iobj, nsubjpass, model, raw_word_list, function="filler_prob", n=5):
+def process_row(predict_role, input_roles, role_fillers, model, raw_word_list, function="filler_prob", n=5):
     """ Apply get_filler_prob or get_top_predictions to a row in a pandas DF.
         
     Keyword arguments:
     predict_role -- the target role for which the filler will be predicted (default: 'V')
     input_roles -- the set of roles that should be used as inputs (default: 'all_args')
-    predicate_lemma -- the verb lemma 
-    nsubj -- the non-passive subject
-    dobj -- the direct object
-    iobj -- the indirect object
-    nsubjpass -- the passive subject
+    role_fillers -- a dictionary containing the role labels and role-fillers
     model -- The loaded model with which to make predictions
     raw_words -- A dictionary of vocabulary
     n -- The number of predictions for the "get top predictions" function
@@ -135,11 +131,11 @@ def process_row(predict_role, input_roles, predicate_lemma, nsubj, dobj, iobj, n
     }
 
     role_map = {
-        "V" : predicate_lemma,
-        "nsubj" : nsubj,
-        "dobj" : dobj,
-        "iobj" : iobj,
-        "nsubjpass" : nsubjpass
+        "V" : role_fillers['predicate_lemma'],
+        "nsubj" : role_fillers['nsubj'],
+        "dobj" : role_fillers['dobj'],
+        "iobj" : role_fillers['iobj'],
+        "nsubjpass" : role_fillers['nsubjpass']
     }
 
     # TARGET GOAL: {"V" : "eat"}
@@ -202,13 +198,21 @@ def pd_themfit(model_name, experiment_name, df, predict_role='V', input_roles="a
     if input_roles == 'all_args':
         input_roles = ['nsubj', 'dobj', 'iobj', 'nsubjpass']
 
+    role_map = {
+        "V" : role_fillers['predicate_lemma'],
+        "nsubj" : role_fillers['nsubj'],
+        "dobj" : role_fillers['dobj'],
+        "iobj" : role_fillers['iobj'],
+        "nsubjpass" : role_fillers['nsubjpass']
+    }
+
     df = df.apply(lambda x: process_row(predict_role,
                                         input_roles,
-                                        x['Pred.Lemma'],
-                                        x['nsubj'],
-                                        x['dobj'],
-                                        x['iobj'],
-                                        x['nsubjpass'],
+                                        {'predicate_lemma' : x['Pred.Lemma'],
+                                         'nsubj' : x['nsubj'],
+                                         'dobj' : x['dobj'],
+                                         'iobj' : x['iobj'],
+                                         'nsubjpass' : x['nsubjpass']}
                                         net,
                                         raw_words,
                                         function,
