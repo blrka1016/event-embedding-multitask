@@ -111,7 +111,7 @@ def get_top_predictions(inputs, target, model, raw_word_list, n=5):
     return results
 
     
-def process_row(predict_role, role_fillers, model, raw_word_list, function="filler_prob", n=5):
+def process_row(predict_role, role_fillers, model, raw_word_list, function="filler_prob", n=5, debug=False)):
     """ Apply get_filler_prob or get_top_predictions to a row in a pandas DF.
         
     Keyword arguments:
